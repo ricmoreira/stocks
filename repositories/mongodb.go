@@ -6,6 +6,7 @@ import (
 
 	"stocks/config"
 
+	"github.com/mongodb/mongo-go-driver/bson"
 	"github.com/mongodb/mongo-go-driver/mongo"
 	"github.com/mongodb/mongo-go-driver/mongo/aggregateopt"
 	"github.com/mongodb/mongo-go-driver/mongo/changestreamopt"
@@ -63,7 +64,20 @@ func NewDBCollections(config *config.Config) *DBCollections {
 
 	db := client.Database(config.MongoDatabaseName)
 
+	// set stock_movements index
+	keys, err := bson.ParseExtJSONObject(`{ "DocumentID": 1, "Line": 1 }`)
+	options, err := bson.ParseExtJSONObject(`{ "unique": true }`)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	stockMovIndex := mongo.IndexModel{
+		Keys:    keys,
+		Options: options,
+	}
+
 	stockMovCollection := db.Collection("stock_movements")
+	_, err = stockMovCollection.Indexes().CreateOne(context.Background(), stockMovIndex)
 	if err != nil {
 		log.Fatal(err)
 	}
