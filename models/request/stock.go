@@ -14,6 +14,8 @@ type StockMovCreate struct {
 	ProductCode    string    `json:"ProductCode" bson:"ProductCode"`
 	UnitOfMeasure  string    `json:"UnitOfMeasure" bson:"UnitOfMeasure"`
 	Time           time.Time `json:"Time" bson:"Time"`
+	Dir            string    `json:"Dir" bson:"Dir" valid:"in(IN|OUT)"`
+	WharehouseID   string    `json:"WharehouseID" bson:"WharehouseID"`
 }
 
 type StockMovRead struct {
@@ -21,11 +23,13 @@ type StockMovRead struct {
 	IDdb           objectid.ObjectID `json:"-" bson:"_id"`
 	MovemementType string            `json:"MovemementType" bson:"MovemementType"`
 	DocumentID     string            `json:"DocumentID" bson:"DocumentID"`
-	Line           int32     `json:"Line" bson:"Line"`
+	Line           int32             `json:"Line" bson:"Line"`
 	Quantity       float32           `json:"Quantity" bson:"Quantity"`
 	ProductCode    string            `json:"ProductCode" bson:"ProductCode"`
 	UnitOfMeasure  string            `json:"UnitOfMeasure" bson:"UnitOfMeasure"`
 	Time           time.Time         `json:"Time" bson:"Time"`
+	Dir            string            `json:"Dir" bson:"Dir" valid:"in(IN|OUT)"`
+	WharehouseID   string            `json:"WharehouseID" bson:"WharehouseID"`
 }
 
 type StockMovUpdate struct {
@@ -33,11 +37,13 @@ type StockMovUpdate struct {
 	IDdb           objectid.ObjectID `json:"-" bson:"_id"`
 	MovemementType string            `json:"MovemementType" bson:"MovemementType"`
 	DocumentID     string            `json:"DocumentID" bson:"DocumentID"`
-	Line           int32     `json:"Line" bson:"Line"`
+	Line           int32             `json:"Line" bson:"Line"`
 	Quantity       float32           `json:"Quantity" bson:"Quantity"`
 	ProductCode    string            `json:"ProductCode" bson:"ProductCode"`
 	UnitOfMeasure  string            `json:"UnitOfMeasure" bson:"UnitOfMeasure"`
 	Time           time.Time         `json:"Time" bson:"Time"`
+	Dir            string            `json:"Dir" bson:"Dir" valid:"in(IN|OUT)"`
+	WharehouseID   string            `json:"WharehouseID" bson:"WharehouseID"`
 }
 
 type StockMovDelete struct {

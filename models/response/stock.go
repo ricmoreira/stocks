@@ -16,6 +16,8 @@ type StockMovCreate struct {
 	ProductCode    string            `json:"ProductCode" bson:"ProductCode"`
 	UnitOfMeasure  string            `json:"UnitOfMeasure" bson:"UnitOfMeasure"`
 	Time           time.Time         `json:"Time" bson:"Time"`
+	Dir            string            `json:"Dir" bson:"Dir" valid:"in(IN|OUT)"`
+	WharehouseID   string            `json:"WharehouseID" bson:"WharehouseID"`
 }
 
 type StockMovRead struct {
@@ -28,6 +30,8 @@ type StockMovRead struct {
 	ProductCode    string            `json:"ProductCode" bson:"ProductCode"`
 	UnitOfMeasure  string            `json:"UnitOfMeasure" bson:"UnitOfMeasure"`
 	Time           time.Time         `json:"Time" bson:"Time"`
+	Dir            string            `json:"Dir" bson:"Dir" valid:"in(IN|OUT)"`
+	WharehouseID   string            `json:"WharehouseID" bson:"WharehouseID"`
 }
 
 type StockMovUpdate struct {
@@ -40,6 +44,8 @@ type StockMovUpdate struct {
 	ProductCode    string            `json:"ProductCode" bson:"ProductCode"`
 	UnitOfMeasure  string            `json:"UnitOfMeasure" bson:"UnitOfMeasure"`
 	Time           time.Time         `json:"Time" bson:"Time"`
+	Dir            string            `json:"Dir" bson:"Dir" valid:"in(IN|OUT)"`
+	WharehouseID   string            `json:"WharehouseID" bson:"WharehouseID"`
 }
 
 type StockMovDelete struct {

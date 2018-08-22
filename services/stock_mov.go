@@ -151,6 +151,8 @@ func (this *StockMovService) CreateStockMovementsFromInvoices(request *[]*models
 			mov.ProductCode = line.ProductCode
 			mov.UnitOfMeasure = line.UnitOfMeasure
 			mov.Time = time
+			mov.Dir = "OUT"
+			mov.WharehouseID = "1" // for now, no logic of wharehouse implemented. default is "1" TODO: implement wharehouse logic
 
 			stockMovements = append(stockMovements, &mov)
 		}
