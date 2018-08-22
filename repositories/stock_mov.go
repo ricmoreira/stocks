@@ -5,10 +5,11 @@ import (
 	"fmt"
 	"stocks/models/request"
 	"stocks/models/response"
+	"strconv"
 
 	"github.com/mongodb/mongo-go-driver/bson"
-	"github.com/mongodb/mongo-go-driver/mongo"
 	"github.com/mongodb/mongo-go-driver/bson/objectid"
+	"github.com/mongodb/mongo-go-driver/mongo"
 	"github.com/mongodb/mongo-go-driver/mongo/findopt"
 	"github.com/mongodb/mongo-go-driver/mongo/insertopt"
 )
@@ -31,7 +32,7 @@ func (this *StockMovRepository) CreateOne(request *mrequest.StockMovCreate) (*mo
 
 // ReadOne returns a invoice based on StockMov ID sent in request
 func (this *StockMovRepository) ReadOne(sm *mrequest.StockMovRead) (*mresponse.StockMovRead, error) {
-	
+
 	oID, err := objectid.FromHex(sm.ID)
 	if err != nil {
 		return nil, err
@@ -43,7 +44,7 @@ func (this *StockMovRepository) ReadOne(sm *mrequest.StockMovRead) (*mresponse.S
 	)
 
 	res := mresponse.StockMovRead{}
-	
+
 	err = result.Decode(res)
 	if err != nil {
 		return nil, err
@@ -106,6 +107,61 @@ func (this *StockMovRepository) List(req *mrequest.ListRequest) (int64, int64, i
 		findopt.Sort(sorting),
 		findopt.Skip(int64(req.PerPage*(req.Page-1))),
 		findopt.Limit(perPage),
+	)
+
+	return total, perPage, page, cursor, e
+}
+
+func (this *StockMovRepository) ListStockMovCount(req *mrequest.ListRequest) (int64, int64, int64, mongo.Cursor, error) {
+
+	args := []*bson.Element{}
+
+	for i, v := range req.Filters {
+		args = append(args, bson.EC.String(i, fmt.Sprintf("%v", v)))
+	}
+
+	total, e := this.stockMov.Count(
+		context.Background(),
+		bson.NewDocument(args...),
+	)
+
+	sorting := map[string]int{}
+	var sortingValue int
+	if req.Order == "reverse" {
+		sortingValue = -1
+	} else {
+		sortingValue = 1
+	}
+	sorting[req.Sort] = sortingValue
+
+	perPage := int64(req.PerPage)
+	page := int64(req.Page)
+	var sort string
+	var order string
+	for key, value := range sorting {
+		sort = key
+		order = strconv.Itoa(value)
+	}
+	skip := strconv.Itoa(int(req.PerPage*(req.Page-1)))
+	queryPerPage := strconv.Itoa(int(perPage))
+
+	group, e := bson.ParseExtJSONArray(`[
+		{ "$group": { 
+			"_id": {"ProductCode": "$ProductCode","Dir": "$Dir","WharehouseID": "$WharehouseID"},
+			"ProductCode": { "$first": "$ProductCode"},
+			"UnitOfMeasure": { "$first": "$UnitOfMeasure"},
+			"Dir": { "$first": "$Dir"},
+			"WharehouseID": { "$first": "$WharehouseID"},
+			"Quantity": { "$sum": "$Quantity" }
+			}
+		},
+		{ "$sort" : { ` + sort + ` : ` + order + `}},
+		{ "$skip": ` + skip + `},
+		{ "$limit" : ` + queryPerPage + `}]`)
+
+	cursor, e := this.stockMov.Aggregate(
+		context.Background(),
+		group,
 	)
 
 	return total, perPage, page, cursor, e

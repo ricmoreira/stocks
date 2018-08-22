@@ -37,13 +37,20 @@ func (s *Server) Run() {
 	r.NoRoute(s.handlers.NotFound)
 
 	// Stock Movement resource
-	stockMovApi := r.Group("/api/v1/stock/movement")
+	stockMovAPI := r.Group("/api/v1/stock/movement")
 	{
 		// Create a new invoice
-		stockMovApi.POST("", s.stockMovController.CreateAction)
+		stockMovAPI.POST("", s.stockMovController.CreateAction)
 
 		// List stocks with filtering and pagination
-		stockMovApi.GET("", s.stockMovController.ListAction)
+		stockMovAPI.GET("", s.stockMovController.ListAction)
+	}
+
+	// Stock Count resource
+	stockCountAPI := r.Group("/api/v1/stock/count")
+	{
+		// Aggregates stock counts with filtering and pagination
+		stockCountAPI.GET("", s.stockMovController.ListStockMovCountAction)
 	}
 
 	// Fire up the server

@@ -59,3 +59,18 @@ type StockMovList struct {
 	Page    int64            `json:"page"`
 	Items   *[]*StockMovRead `json:"items"`
 }
+
+type StockMovCount struct {
+	ProductCode   string  `json:"ProductCode" bson:"ProductCode"`
+	Quantity      float32 `json:"Quantity" bson:"Quantity"`
+	UnitOfMeasure string  `json:"UnitOfMeasure" bson:"UnitOfMeasure"`
+	Dir           string  `json:"Dir" bson:"Dir" valid:"in(IN|OUT)"`
+	WharehouseID  string  `json:"WharehouseID" bson:"WharehouseID"`
+}
+
+type StockMovCountList struct {
+	Total   int64             `json:"total"`
+	PerPage int64             `json:"per_page"`
+	Page    int64             `json:"page"`
+	Items   *[]*StockMovCount `json:"items"`
+}

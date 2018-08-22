@@ -67,3 +67,28 @@ func (pc StockMovController) ListAction(c *gin.Context) {
 
 	c.JSON(200, res)
 }
+
+// ListStockMovCountAction aggregates stock results by ProductID, Dir and WharehouseID
+func (pc StockMovController) ListStockMovCountAction(c *gin.Context) {
+	validSorts := map[string]string{}
+	validSorts["_id"] = "_id"
+
+	validFilters := map[string]string{}
+	validFilters["Dir"] = "Dir"
+	validFilters["ProductCode"] = "ProductCode"
+	validFilters["WharehouseID"] = "WharehouseID"
+	validFilters["_id"] = "_id"
+
+	qValues := c.Request.URL.Query()
+	
+	req := mrequest.NewListRequest(qValues, validSorts, validFilters)
+	
+	res, err := pc.StockMovService.ListStockMovCount(req)
+
+	if err != nil {
+		c.JSON(err.HttpCode, err)
+		return
+	}
+
+	c.JSON(200, res)
+}

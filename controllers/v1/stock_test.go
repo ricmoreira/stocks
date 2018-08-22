@@ -4,6 +4,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
+	"stocks/models"
 	"stocks/models/request"
 	"stocks/models/response"
 	"stocks/util/errors"
@@ -59,6 +60,16 @@ func (ps *MockStockMovService) List(*mrequest.ListRequest) (*mresponse.StockMovL
 	// TODO: implement in the future
 	return nil, nil
 }
+
+func (ps *MockStockMovService) CreateStockMovementsFromInvoices(request *[]*models.Invoice) (*[]*mresponse.StockMovCreate, *mresponse.ErrorResponse) {
+	// TODO: implement in the future
+	return nil, nil
+}
+func (ps *MockStockMovService) ListStockMovCount(request *mrequest.ListRequest) (*mresponse.StockMovCountList, *mresponse.ErrorResponse) {
+	// TODO: implement in the future
+	return nil, nil
+}
+
 func TestCreateStockAction(t *testing.T) {
 
 	// Mock the server

@@ -23,6 +23,8 @@ type StockMovServiceContract interface {
 	DeleteOne(*mrequest.StockMovDelete) (*mresponse.StockMovDelete, *mresponse.ErrorResponse)
 	CreateMany(*[]*mrequest.StockMovCreate) (*[]*mresponse.StockMovCreate, *mresponse.ErrorResponse)
 	List(request *mrequest.ListRequest) (*mresponse.StockMovList, *mresponse.ErrorResponse)
+	CreateStockMovementsFromInvoices(request *[]*models.Invoice) (*[]*mresponse.StockMovCreate, *mresponse.ErrorResponse)
+	ListStockMovCount(request *mrequest.ListRequest) (*mresponse.StockMovCountList, *mresponse.ErrorResponse) 
 }
 
 // StockMovService is the layer between http client and repository for Stock Mov resource
@@ -125,6 +127,37 @@ func (this *StockMovService) List(request *mrequest.ListRequest) (*mresponse.Sto
 	}
 
 	resp := mresponse.StockMovList{
+		Total:   total,
+		PerPage: perPage,
+		Page:    page,
+		Items:   &docs,
+	}
+	return &resp, nil
+}
+
+// ListStockCount returns a list an aggregation of stock count for all products
+func (this *StockMovService) ListStockMovCount(request *mrequest.ListRequest) (*mresponse.StockMovCountList, *mresponse.ErrorResponse) {
+
+	total, perPage, page, cursor, err := this.StockMovRepository.ListStockMovCount(request)
+
+	if err != nil {
+		e := errors.HandleErrorResponse(errors.SERVICE_UNAVAILABLE, nil, err.Error())
+		return nil, e
+	}
+
+	docs := []*mresponse.StockMovCount{}
+
+	for cursor.Next(context.Background()) {
+		doc := mresponse.StockMovCount{}
+		if err := cursor.Decode(&doc); err != nil {
+			errR := errors.HandleErrorResponse(errors.SERVICE_UNAVAILABLE, nil, err.Error())
+			return nil, errR
+		}
+
+		docs = append(docs, &doc)
+	}
+
+	resp := mresponse.StockMovCountList{
 		Total:   total,
 		PerPage: perPage,
 		Page:    page,
