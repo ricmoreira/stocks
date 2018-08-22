@@ -80,7 +80,7 @@ func TestCreateStockAction(t *testing.T) {
 
 	// Mock a request
 	body := mrequest.StockMovCreate{}
-	body.MovemementType = "SALE"
+	body.MovementType = "SALE"
 	body.DocumentID = "FS1235"
 	body.Quantity = 1.0
 	body.ProductCode = "123456789"

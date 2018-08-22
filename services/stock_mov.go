@@ -1,12 +1,12 @@
 package services
 
 import (
-	"stocks/util"
 	"context"
 	"stocks/models"
 	"stocks/models/request"
 	"stocks/models/response"
 	"stocks/repositories"
+	"stocks/util"
 	"stocks/util/errors"
 
 	"log"
@@ -137,15 +137,15 @@ func (this *StockMovService) List(request *mrequest.ListRequest) (*mresponse.Sto
 func (this *StockMovService) CreateStockMovementsFromInvoices(request *[]*models.Invoice) (*[]*mresponse.StockMovCreate, *mresponse.ErrorResponse) {
 
 	stockMovements := make([]*mrequest.StockMovCreate, 0)
-	
+
 	for _, invoice := range *request {
 		docID := invoice.InvoiceNo
 		time, _ := util.ParseDateTime(invoice.SystemEntryDate)
 		// ignore error on parsing time
-		for i,line := range invoice.Lines {
+		for i, line := range invoice.Lines {
 			mov := mrequest.StockMovCreate{}
 			mov.DocumentID = docID
-			mov.MovemementType = models.SALE
+			mov.MovementType = models.SALE
 			mov.Line = int32(i)
 			mov.Quantity = line.Quantity
 			mov.ProductCode = line.ProductCode
