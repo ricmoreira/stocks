@@ -19,3 +19,6 @@ Makefile
 
 # launch.json for .vscode
 launch.json
+
+# debug file
+*debug
