@@ -116,8 +116,15 @@ func (this *StockMovRepository) ListStockMovCount(req *mrequest.ListRequest) (in
 
 	args := []*bson.Element{}
 
-	for i, v := range req.Filters {
-		args = append(args, bson.EC.String(i, fmt.Sprintf("%v", v)))
+	for key, value := range req.Filters {
+		if key != "_id" { // filter by text fields
+			pattern := value.(string)
+			elem := bson.EC.Regex(key, pattern, "i")
+			args = append(args, elem)
+		} else { // filter by _id
+			elem := bson.EC.String(key, value.(string))
+			args = append(args, elem)
+		}
 	}
 
 	total, e := this.stockMov.Count(
@@ -142,7 +149,7 @@ func (this *StockMovRepository) ListStockMovCount(req *mrequest.ListRequest) (in
 		sort = key
 		order = strconv.Itoa(value)
 	}
-	skip := strconv.Itoa(int(req.PerPage*(req.Page-1)))
+	skip := strconv.Itoa(int(req.PerPage * (req.Page - 1)))
 	queryPerPage := strconv.Itoa(int(perPage))
 
 	group, e := bson.ParseExtJSONArray(`[
