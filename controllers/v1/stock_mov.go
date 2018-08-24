@@ -71,13 +71,11 @@ func (pc StockMovController) ListAction(c *gin.Context) {
 // ListStockMovCountAction aggregates stock results by ProductID, Dir and WharehouseID
 func (pc StockMovController) ListStockMovCountAction(c *gin.Context) {
 	validSorts := map[string]string{}
-	validSorts["_id"] = "_id"
+	validSorts["ProductCode"] = "ProductCode"
 
 	validFilters := map[string]string{}
-	validFilters["Dir"] = "Dir"
 	validFilters["ProductCode"] = "ProductCode"
 	validFilters["WharehouseID"] = "WharehouseID"
-	validFilters["_id"] = "_id"
 
 	qValues := c.Request.URL.Query()
 	

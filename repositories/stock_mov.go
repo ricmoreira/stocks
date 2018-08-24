@@ -114,24 +114,6 @@ func (this *StockMovRepository) List(req *mrequest.ListRequest) (int64, int64, i
 
 func (this *StockMovRepository) ListStockMovCount(req *mrequest.ListRequest) (int64, int64, int64, mongo.Cursor, error) {
 
-	args := []*bson.Element{}
-
-	for key, value := range req.Filters {
-		if key != "_id" { // filter by text fields
-			pattern := value.(string)
-			elem := bson.EC.Regex(key, pattern, "i")
-			args = append(args, elem)
-		} else { // filter by _id
-			elem := bson.EC.String(key, value.(string))
-			args = append(args, elem)
-		}
-	}
-
-	total, e := this.stockMov.Count(
-		context.Background(),
-		bson.NewDocument(args...),
-	)
-
 	sorting := map[string]int{}
 	var sortingValue int
 	if req.Order == "reverse" {
@@ -152,24 +134,81 @@ func (this *StockMovRepository) ListStockMovCount(req *mrequest.ListRequest) (in
 	skip := strconv.Itoa(int(req.PerPage * (req.Page - 1)))
 	queryPerPage := strconv.Itoa(int(perPage))
 
-	group, e := bson.ParseExtJSONArray(`[
-		{ "$group": { 
-			"_id": {"ProductCode": "$ProductCode","Dir": "$Dir","WharehouseID": "$WharehouseID"},
+	// starting query string
+	var startString string
+	if val, ok := req.Filters["ProductCode"]; ok {
+		startString = `[{
+			"$match": {
+				"ProductCode": "` + val.(string) + `"
+			}
+		},`
+	} else {
+		startString = `[`
+	}
+
+	// group stage query string
+	groupString := `{ "$group": { 
+			"_id": {"ProductCode": "$ProductCode", "WharehouseID": "$WharehouseID"},
 			"ProductCode": { "$first": "$ProductCode"},
 			"UnitOfMeasure": { "$first": "$UnitOfMeasure"},
-			"Dir": { "$first": "$Dir"},
 			"WharehouseID": { "$first": "$WharehouseID"},
-			"Quantity": { "$sum": "$Quantity" }
+			"In": {
+				"$sum": { 
+					"$switch": { 
+						"branches": [ 
+							{ 
+								"case": { "$eq": [ "$Dir", "IN" ] }, 
+								"then": "$Quantity"
+							}
+						], 
+						"default": 0 
+					}
+				}
+			},
+			"Out": {
+				"$sum": { 
+					"$switch": { 
+						"branches": [ 
+							{ 
+								"case": { "$eq": [ "$Dir", "OUT" ] }, 
+								"then": "$Quantity"
+							}
+						], 
+						"default": 0 
+					}
+				}
 			}
-		},
-		{ "$sort" : { ` + sort + ` : ` + order + `}},
-		{ "$skip": ` + skip + `},
-		{ "$limit" : ` + queryPerPage + `}]`)
+		}
+	},
+	{ "$addFields": { "Stock": { "$subtract": ["$In", "$Out"] } } }`
+
+	sortLimitString := `,{ "$sort" : { ` + sort + ` : ` + order + `}},
+	{ "$skip": ` + skip + `},
+	{ "$limit" : ` + queryPerPage + `}]`
+
+	// obtain results
+	group, e := bson.ParseExtJSONArray(startString + groupString + sortLimitString)
 
 	cursor, e := this.stockMov.Aggregate(
 		context.Background(),
 		group,
 	)
 
+	if e != nil {
+		return 0, 0, 0, nil, e
+	}
+
+	// obtain total count
+	// TODO: check a better way of getting size of aggregation
+	groupCount, _ := bson.ParseExtJSONArray(startString + groupString + `]`)
+	countCursor, e := this.stockMov.Aggregate(
+		context.Background(),
+		groupCount,
+	)
+	total := int64(0)
+	for countCursor.Next(context.Background()) {
+		total++
+	}
+	
 	return total, perPage, page, cursor, e
 }

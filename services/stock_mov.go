@@ -135,7 +135,7 @@ func (this *StockMovService) List(request *mrequest.ListRequest) (*mresponse.Sto
 	return &resp, nil
 }
 
-// ListStockCount returns a list an aggregation of stock count for all products
+// ListStockMovCount returns a list with the stock count for all products
 func (this *StockMovService) ListStockMovCount(request *mrequest.ListRequest) (*mresponse.StockMovCountList, *mresponse.ErrorResponse) {
 
 	total, perPage, page, cursor, err := this.StockMovRepository.ListStockMovCount(request)

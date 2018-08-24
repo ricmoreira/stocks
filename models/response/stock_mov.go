@@ -62,10 +62,11 @@ type StockMovList struct {
 
 type StockMovCount struct {
 	ProductCode   string  `json:"ProductCode" bson:"ProductCode"`
-	Quantity      float32 `json:"Quantity" bson:"Quantity"`
-	UnitOfMeasure string  `json:"UnitOfMeasure" bson:"UnitOfMeasure"`
-	Dir           string  `json:"Dir" bson:"Dir" valid:"in(IN|OUT)"`
 	WharehouseID  string  `json:"WharehouseID" bson:"WharehouseID"`
+	UnitOfMeasure string  `json:"UnitOfMeasure" bson:"UnitOfMeasure"`
+	In            float32 `json:"In" bson:"In"`
+	Out           float32 `json:"Out" bson"Out"`
+	Stock         float32 `json:"Stock" bson:"Stock"`
 }
 
 type StockMovCountList struct {
