@@ -22,7 +22,7 @@ run:
 	export MONGO_HOST=mongodb://localhost:27017 ; \
 	export MONGO_DATABASE=stocks ; \
 	export GROUP_ID=2; \
-	export TOPICS_SUBSCRIBED=invoices; \
+	export TOPICS_SUBSCRIBED=invoices,invoice; \
 	export BOOTSTRAP_SERVERS=localhost:9092; \
 	export REQUEST_TIMEOUT=1000; \
 	export RETRIES=5; \

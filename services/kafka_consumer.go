@@ -69,6 +69,21 @@ func (kc *KafkaConsumer) Run() {
 					log.Printf("Error saving stock movements to database\n Error: %s\n", e.Response)
 					break
 				}
+			case "invoice":
+				log.Println(`Reading an invoice topic message`)
+				invoice, err := kc.parseInvoiceMessage(msg.Value)
+				if err != nil {
+					log.Printf("Error parsing event message value. Message %v \n Error: %s\n", msg.Value, err.Error())
+					break
+				}
+
+				// save stock movements to database
+				_, e := kc.stockMovServ.CreateStockMovementsFromInvoice(invoice)
+				// save stock movement to database
+				if e != nil {
+					log.Printf("Error saving stock movements to database\n Error: %s\n", e.Response)
+					break
+				}	
 			default: //ignore any other topics
 			}
 		} else {
@@ -88,4 +103,15 @@ func (kc *KafkaConsumer) parseInvoicesMessage(messageValue []byte) (*[]*models.I
 	}
 
 	return &invoices, nil
+}
+
+func (kc *KafkaConsumer) parseInvoiceMessage(messageValue []byte) (*models.Invoice, error) {
+	invoice := models.Invoice{}
+	err := json.Unmarshal(messageValue, &invoice)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &invoice, nil
 }

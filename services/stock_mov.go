@@ -81,6 +81,11 @@ func (this *StockMovService) DeleteOne(sm *mrequest.StockMovDelete) (*mresponse.
 // CreateMany saves many Stocks in one bulk operation
 func (this *StockMovService) CreateMany(request *[]*mrequest.StockMovCreate) (*[]*mresponse.StockMovCreate, *mresponse.ErrorResponse) {
 
+	if len(*request) == 0 {
+		resp := make([]*mresponse.StockMovCreate, 0)
+		return &resp, nil
+	}
+
 	res, err := this.StockMovRepository.InsertMany(request)
 
 	if err != nil {
@@ -189,6 +194,32 @@ func (this *StockMovService) CreateStockMovementsFromInvoices(request *[]*models
 
 			stockMovements = append(stockMovements, &mov)
 		}
+	}
+
+	return this.CreateMany(&stockMovements)
+}
+
+// CreateStockMovementFromInvoice creates stock movements of type SALE from an invoices
+func (this *StockMovService) CreateStockMovementsFromInvoice(invoice *models.Invoice) (*[]*mresponse.StockMovCreate, *mresponse.ErrorResponse) {
+
+	stockMovements := make([]*mrequest.StockMovCreate, 0)
+
+	docID := invoice.InvoiceNo
+	time, _ := util.ParseDateTime(invoice.SystemEntryDate)
+	// ignore error on parsing time
+	for i, line := range invoice.Lines {
+		mov := mrequest.StockMovCreate{}
+		mov.DocumentID = docID
+		mov.MovementType = models.SALE
+		mov.Line = int32(i)
+		mov.Quantity = line.Quantity
+		mov.ProductCode = line.ProductCode
+		mov.UnitOfMeasure = line.UnitOfMeasure
+		mov.Time = time
+		mov.Dir = "OUT"
+		mov.WharehouseID = "1" // for now, no logic of wharehouse implemented. default is "1" TODO: implement wharehouse logic
+
+		stockMovements = append(stockMovements, &mov)
 	}
 
 	return this.CreateMany(&stockMovements)
