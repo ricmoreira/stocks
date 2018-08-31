@@ -23,7 +23,7 @@ type StockMovServiceContract interface {
 	DeleteOne(*mrequest.StockMovDelete) (*mresponse.StockMovDelete, *mresponse.ErrorResponse)
 	CreateMany(*[]*mrequest.StockMovCreate) (*[]*mresponse.StockMovCreate, *mresponse.ErrorResponse)
 	List(request *mrequest.ListRequest) (*mresponse.StockMovList, *mresponse.ErrorResponse)
-	CreateStockMovementsFromInvoices(request *[]*models.Invoice) (*[]*mresponse.StockMovCreate, *mresponse.ErrorResponse)
+	CreateStockMovementsFromInvoice(invoice *models.Invoice) (*[]*mresponse.StockMovCreate, *mresponse.ErrorResponse)
 	ListStockMovCount(request *mrequest.ListRequest) (*mresponse.StockMovCountList, *mresponse.ErrorResponse) 
 }
 
@@ -169,34 +169,6 @@ func (this *StockMovService) ListStockMovCount(request *mrequest.ListRequest) (*
 		Items:   &docs,
 	}
 	return &resp, nil
-}
-
-// CreateStockMovementsFromInvoices creates stock movements of type SALE from a list of invoices
-func (this *StockMovService) CreateStockMovementsFromInvoices(request *[]*models.Invoice) (*[]*mresponse.StockMovCreate, *mresponse.ErrorResponse) {
-
-	stockMovements := make([]*mrequest.StockMovCreate, 0)
-
-	for _, invoice := range *request {
-		docID := invoice.InvoiceNo
-		time, _ := util.ParseDateTime(invoice.SystemEntryDate)
-		// ignore error on parsing time
-		for i, line := range invoice.Lines {
-			mov := mrequest.StockMovCreate{}
-			mov.DocumentID = docID
-			mov.MovementType = models.SALE
-			mov.Line = int32(i)
-			mov.Quantity = line.Quantity
-			mov.ProductCode = line.ProductCode
-			mov.UnitOfMeasure = line.UnitOfMeasure
-			mov.Time = time
-			mov.Dir = "OUT"
-			mov.WharehouseID = "1" // for now, no logic of wharehouse implemented. default is "1" TODO: implement wharehouse logic
-
-			stockMovements = append(stockMovements, &mov)
-		}
-	}
-
-	return this.CreateMany(&stockMovements)
 }
 
 // CreateStockMovementFromInvoice creates stock movements of type SALE from an invoices

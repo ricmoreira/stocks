@@ -5,5 +5,6 @@ import (
 )
 
 type Invoice struct {
+	ID                                                                  string `json:"id,omitempty"`
 	go_SaftT104.TxsdSourceDocumentsSequenceSalesInvoicesSequenceInvoice `bson:"inline"`
 }

@@ -61,7 +61,7 @@ func (ps *MockStockMovService) List(*mrequest.ListRequest) (*mresponse.StockMovL
 	return nil, nil
 }
 
-func (ps *MockStockMovService) CreateStockMovementsFromInvoices(request *[]*models.Invoice) (*[]*mresponse.StockMovCreate, *mresponse.ErrorResponse) {
+func (ps *MockStockMovService) CreateStockMovementsFromInvoice(invoice *models.Invoice) (*[]*mresponse.StockMovCreate, *mresponse.ErrorResponse) {
 	// TODO: implement in the future
 	return nil, nil
 }
